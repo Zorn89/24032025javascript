@@ -2,29 +2,51 @@ const addButton = document.getElementById("addButton");
 const artikelInput = document.getElementById("artikel");
 const anzahlInput = document.getElementById("anzahl");
 const preisInput = document.getElementById("preis");
+const kategorieInput = document.getElementById("kategorie");
 const liste = document.getElementById("liste");
 const gesamt = document.getElementById("gesamt");
 const clearButton = document.getElementById("clearButton");
+const darkModeButton = document.getElementById("darkModeButton");
 
 let gesamtPreis = 0;
+let darkMode = false;
 
-addButton.addEventListener("click", () => {
+addButton.addEventListener("click", addItem);
+
+// Enter-Taste Funktionalität
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        addItem();
+    }
+});
+
+function addItem() {
     const artikel = artikelInput.value;
-    const anzahl = anzahlInput.value;
-    const preis = preisInput.value;
+    const anzahl = parseInt(anzahlInput.value);
+    const preis = parseFloat(preisInput.value);
+    const kategorie = kategorieInput.value;
 
-    // Eingabeüberprüfung
-    if (!artikel || !anzahl || !preis) {
-        if (!artikel) artikelInput.style.borderColor = "red";
-        if (!anzahl) anzahlInput.style.borderColor = "red";
-        if (!preis) preisInput.style.borderColor = "red";
+    // Eingabe überprüfen
+    if (!artikel || isNaN(anzahl) || isNaN(preis)) {
+        if (!artikel) artikelInput.classList.add("error"); else artikelInput.classList.remove("error");
+        if (isNaN(anzahl)) anzahlInput.classList.add("error"); else anzahlInput.classList.remove("error");
+        if (isNaN(preis)) preisInput.classList.add("error"); else preisInput.classList.remove("error");
         return;
     }
 
     // Eingabefelder zurücksetzen
-    artikelInput.style.borderColor = "";
-    anzahlInput.style.borderColor = "";
-    preisInput.style.borderColor = "";
+    artikelInput.classList.remove("error");
+    anzahlInput.classList.remove("error");
+    preisInput.classList.remove("error");
+
+    // Emoji für Kategorie
+    let kategorieEmoji = "";
+    switch (kategorie) {
+        case "Obst": kategorieEmoji = ""; break;
+        case "Gemüse": kategorieEmoji = ""; break;
+        case "Drogerie": kategorieEmoji = ""; break;
+        default: kategorieEmoji = "";
+    }
 
     // Neues Element erstellen
     const new_li = document.createElement("li");
@@ -36,7 +58,8 @@ addButton.addEventListener("click", () => {
     new_li.appendChild(checkbox);
 
     // Textinhalt erstellen
-    const textNode = document.createTextNode(`${anzahl} x ${artikel}: ${preis}€ p.P. ------ ${anzahl * preis}€`);
+    const gesamtArtikelPreis = anzahl * preis;
+    const textNode = document.createTextNode(`${anzahl} x ${artikel} ${kategorieEmoji}: ${preis.toFixed(2)}€ p.P. ------ ${gesamtArtikelPreis.toFixed(2)}€`);
     new_li.appendChild(textNode);
 
     // Löschen-Button erstellen
@@ -48,6 +71,13 @@ addButton.addEventListener("click", () => {
     });
     new_li.appendChild(deleteButton);
 
+    // Tooltip erstellen
+    const tooltip = document.createElement("span");
+    tooltip.classList.add("tooltip");
+    const now = new Date();
+    tooltip.textContent = `Hinzugefügt: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+    new_li.appendChild(tooltip);
+
     liste.appendChild(new_li);
 
     // Gesamtpreis aktualisieren
@@ -57,7 +87,7 @@ addButton.addEventListener("click", () => {
     artikelInput.value = "";
     anzahlInput.value = "";
     preisInput.value = "";
-});
+}
 
 function updatePreis() {
     gesamtPreis = 0;
@@ -66,17 +96,22 @@ function updatePreis() {
         const checkbox = item.querySelector("input[type='checkbox']");
         if (checkbox.checked) {
             const preisText = item.textContent;
-            const preisMatch = preisText.match(/(\d+)€$/);
+            const preisMatch = preisText.match(/------ (\d+\.\d+)€/);
             if (preisMatch) {
-                gesamtPreis += parseInt(preisMatch[1]);
+                gesamtPreis += parseFloat(preisMatch[1]);
             }
         }
     });
-    gesamt.textContent = `Gesamt: ${gesamtPreis}€`;
+    gesamt.textContent = `Gesamt: ${gesamtPreis.toFixed(2)}€`;
 }
 
 clearButton.addEventListener("click", () => {
     liste.innerHTML = "";
     gesamtPreis = 0;
     updatePreis();
+});
+
+darkModeButton.addEventListener("click", () => {
+    darkMode = !darkMode;
+    document.body.classList.toggle("dark-mode", darkMode);
 });

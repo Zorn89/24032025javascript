@@ -3,6 +3,13 @@ body {
     flex-direction: column;
     padding-left: 20%;
     padding-right: 20%;
+    background-color: white; /* Standard-Light-Mode */
+    color: black;
+}
+
+body.dark-mode {
+    background-color: #333;
+    color: white;
 }
 
 body * {
@@ -10,10 +17,34 @@ body * {
 }
 
 li {
-    display: flex;
-    align-items: center;
+    list-style: none;
+    position: relative; /* Für Tooltip */
 }
 
-li input[type="checkbox"] {
-    margin-right: 10px;
+input[type="text"], input[type="number"], select {
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+
+input[type="text"].error, input[type="number"].error {
+    border-color: red;
+}
+
+/* Tooltip Styling */
+li .tooltip {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    top: -30px;
+    left: 110%;
+}
+
+li:hover .tooltip {
+    visibility: visible;
 }
