@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API-Datenanzeige Hausaufgabe</title>
+    <style>
+        body { font-family: sans-serif; }
+        #wetter { margin-bottom: 20px; }
+        #spezies ul { list-style-type: none; padding: 0; }
+        #spezies li { border: 1px solid white; margin-bottom: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>API-Datenanzeige Hausaufgabe</h1>
+
+    <div id="wetter">
+        <h2>Wettervorhersage</h2>
+        <input type="text" id="ort" placeholder="Ort eingeben">
+        <button id="wetterButton">Wetter abrufen</button>
+        <div id="wetterDaten"></div>
+    </div>
+
+    <div id="spezies">
+        <h2>Star Wars Spezies</h2>
+        <div id="speziesDaten">Lade Speziesdaten...</div>
+    </div>
+
+    <script>
+        // Wetter-API (wttr.in)
+        const wetterButton = document.getElementById("wetterButton");
+        wetterButton.addEventListener("click", () => {
+            const ort = document.getElementById("ort").value;
+            fetch(`https://wttr.in/${ort}?format=j1`)
+                .then(res => res.json())
+                .then(data => {
+                    const wetterDatenDiv = document.getElementById("wetterDaten");
+                    wetterDatenDiv.innerHTML = `
+                        <p>Temperatur: ${data.current_condition[0].temp_C}°C</p>
+                        <p>Wetter: ${data.current_condition[0].weatherDesc[0].value}</p>
+                    `;
+                })
+                .catch(error => {
+                    document.getElementById("wetterDaten").innerHTML = `<p>Fehler: ${error}</p>`;
+                });
+        });
+
+        // Star Wars Spezies-API (swapi.dev)
+        fetch("https://swapi.dev/api/species")
+            .then(res => res.json())
+            .then(data => {
+                const speziesDatenDiv = document.getElementById("speziesDaten");
+                speziesDatenDiv.innerHTML = ""; // Lade-Nachricht löschen
+
+                if (data && data.results && data.results.length > 0) {
+                    const speziesList = document.createElement("ul");
+
+                    data.results.forEach(spezies => {
+                        const speziesItem = document.createElement("li");
+                        speziesItem.innerHTML = `<strong>${spezies.name}</strong>`; // Nur der Name
+                        speziesList.appendChild(speziesItem);
+                    });
+
+                    speziesDatenDiv.appendChild(speziesList);
+                } else {
+                    speziesDatenDiv.innerHTML = "<p>Keine Daten gefunden.</p>";
+                }
+            })
+            .catch(error => {
+                document.getElementById("speziesDaten").innerHTML = `<p>Fehler: ${error}</p>`;
+            });
+    </script>
+
+</body>
+</html>
